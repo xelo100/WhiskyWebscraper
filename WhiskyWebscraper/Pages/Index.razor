@@ -1,3 +1,54 @@
 ﻿@page "/"
+@*@using WhiskyWebscraper.Jobs;
+@inject PeriodicExecutor PeriodicExecutor
 
-<h1>Hello, world!</h1>
+<div class="row">
+    <button @onclick="OnClickStart">Start Job</button>
+    <button @onclick="OnClickEnd">End Job</button>
+</div>
+
+<div class="row">
+    Job Executions: @PeriodicExecutor.Count
+    <table>
+        <tbody>
+            @foreach (var row in _executions)
+            {
+                <tr>
+                    <td>
+                        @row
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    private List<string> _executions = new();
+
+    protected override void OnInitialized()
+    {
+        PeriodicExecutor.JobExecuted += HandleJobExecuted;
+    }
+
+    private void OnClickStart()
+    {
+        PeriodicExecutor.StartExecuting();
+    }
+
+    private void OnClickEnd()
+    {
+        PeriodicExecutor.Dispose();
+    }
+
+    void HandleJobExecuted(object sender, JobExecutedEventArgs e)
+    {
+        _executions.Add($"Job Executed: {DateTime.Now}");
+    }
+
+    public void Dispose()
+    {
+        PeriodicExecutor.JobExecuted -= HandleJobExecuted;
+    }
+}
+*@
