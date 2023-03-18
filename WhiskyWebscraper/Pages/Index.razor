@@ -1,5 +1,5 @@
 ﻿@page "/"
-@*@using WhiskyWebscraper.Jobs;
+@using WhiskyWebscraper.Jobs;
 @inject PeriodicExecutor PeriodicExecutor
 
 <div class="row">
@@ -51,4 +51,3 @@
         PeriodicExecutor.JobExecuted -= HandleJobExecuted;
     }
 }
-*@
