@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using Microsoft.Playwright;
 @using WhiskyWebscraper.Jobs;
 @inject PeriodicExecutor PeriodicExecutor
 
@@ -8,7 +9,6 @@
 </div>
 
 <div class="row">
-    Job Executions: @PeriodicExecutor.Count
     <table>
         <tbody>
             @foreach (var row in _executions)
@@ -44,6 +44,7 @@
     void HandleJobExecuted(object sender, JobExecutedEventArgs e)
     {
         _executions.Add($"Job Executed: {DateTime.Now}");
+        StateHasChanged();
     }
 
     public void Dispose()

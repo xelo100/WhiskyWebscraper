@@ -11,28 +11,30 @@ public class PeriodicExecutor : IDisposable
         JobExecuted?.Invoke(this, new JobExecutedEventArgs());
     }
 
-    System.Timers.Timer _timer;
+    PeriodicTimer _timer;
     bool _running;
-    public int Count { get; set; }
 
-    public void StartExecuting()
+    public async void StartExecuting()
     {
         if (!_running)
         {
-            _timer = new System.Timers.Timer();
-            _timer.Interval = TimeSpan.FromSeconds(5).TotalMilliseconds;
-            //_timer.Interval = TimeSpan.FromMinutes(1).TotalMilliseconds;
-            _timer.Elapsed += HandleTimer;
-            _timer.AutoReset = true;
-            _timer.Enabled = true;
+            _timer = new PeriodicTimer(TimeSpan.FromSeconds(5));
+            while (await _timer.WaitForNextTickAsync()) 
+            {
+                await HandleTimer();
+            }
 
             _running = true;
         }
     }
 
-    private void HandleTimer(object source, ElapsedEventArgs e)
+    private async Task HandleTimer()
     {
-        Count++;
+        var content = await HeadlessBrowser.GetPageContent("https://whiskyhaus.de/");
+        if (content != null)
+        {
+            await WebPageAnalyzer.Analyze(content);
+        }
 
         OnJobExecuted();
     }
@@ -41,9 +43,8 @@ public class PeriodicExecutor : IDisposable
     {
         if (_running) 
         {
-            _timer.Stop();
+            _timer.Dispose();
             _running = false;
-            Count = 0;
         }
     }
 }
